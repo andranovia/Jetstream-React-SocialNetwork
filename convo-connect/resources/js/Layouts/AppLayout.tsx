@@ -1,414 +1,166 @@
-import { router } from '@inertiajs/core';
-import { Link, Head } from '@inertiajs/react';
-import classNames from 'classnames';
+import { Head } from '@inertiajs/react';
+
 import React, { PropsWithChildren, useState } from 'react';
-import useRoute from '@/Hooks/useRoute';
-import useTypedPage from '@/Hooks/useTypedPage';
-import ApplicationMark from '@/Components/ApplicationMark';
-import Banner from '@/Components/Banner';
-import Dropdown from '@/Components/Dropdown';
-import DropdownLink from '@/Components/DropdownLink';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Team } from '@/types';
+import ProfileDropdown from '@/Components/ProfileDropdown';
 
 interface Props {
   title: string;
-  renderHeader?(): JSX.Element;
 }
 
 export default function AppLayout({
   title,
-  renderHeader,
   children,
 }: PropsWithChildren<Props>) {
-  const page = useTypedPage();
-  const route = useRoute();
-  const [showingNavigationDropdown, setShowingNavigationDropdown] =
-    useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  function switchToTeam(e: React.FormEvent, team: Team) {
-    e.preventDefault();
-    router.put(
-      route('current-team.update'),
-      {
-        team_id: team.id,
-      },
-      {
-        preserveState: false,
-      },
-    );
-  }
+  const handleResize = () => {
+    setIsMobile(window.innerWidth <= 768);
+  };
+  React.useEffect(() => {
+    handleResize();
+    window.addEventListener('resize', handleResize);
 
-  function logout(e: React.FormEvent) {
-    e.preventDefault();
-    router.post(route('logout'));
-  }
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   return (
     <div>
       <Head title={title} />
+      <div>
+        {!isMobile && (
+          <div className="grid grid-cols-4   bg-gray-200 h-screen w-auto">
+            <div className="relative bg-white">
+              <div className=" bg-gray-200 fixed top-0  bottom-0">
+                <div className="absolute z-0 p-10 bottom-0  w-[20rem] ">
+                  <div className="relative right-[10rem]">
+                    <ProfileDropdown />
+                  </div>
 
-      <Banner />
-
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-        <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-          {/* <!-- Primary Navigation Menu --> */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16">
-              <div className="flex">
-                {/* <!-- Logo --> */}
-                <div className="flex-shrink-0 flex items-center">
-                  <Link href={route('dashboard')}>
-                    <ApplicationMark className="block h-9 w-auto" />
-                  </Link>
-                </div>
-
-                {/* <!-- Navigation Links --> */}
-                <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                  <NavLink
-                    href={route('dashboard')}
-                    active={route().current('dashboard')}
-                  >
-                    Dashboard
-                  </NavLink>
-                </div>
-              </div>
-
-              <div className="hidden sm:flex sm:items-center sm:ml-6">
-                <div className="ml-3 relative">
-                  {/* <!-- Teams Dropdown --> */}
-                  {page.props.jetstream.hasTeamFeatures ? (
-                    <Dropdown
-                      align="right"
-                      width="60"
-                      renderTrigger={() => (
-                        <span className="inline-flex rounded-md">
-                          <button
-                            type="button"
-                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150"
-                          >
-                            {page.props.auth.user?.current_team?.name}
-
-                            <svg
-                              className="ml-2 -mr-0.5 h-4 w-4"
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </button>
-                        </span>
-                      )}
+                  <div className="py-2">
+                    <a
+                      href="#"
+                      className="flex items-center text-1xl font-bold sm:shadow-ShadowCard sm:p-3 sm:rounded-md"
                     >
-                      <div className="w-60">
-                        {/* <!-- Team Management --> */}
-                        {page.props.jetstream.hasTeamFeatures ? (
-                          <>
-                            <div className="block px-4 py-2 text-xs text-gray-400">
-                              Manage Team
-                            </div>
-
-                            {/* <!-- Team Settings --> */}
-                            <DropdownLink
-                              href={route('teams.show', [
-                                page.props.auth.user?.current_team!,
-                              ])}
-                            >
-                              Team Settings
-                            </DropdownLink>
-
-                            {page.props.jetstream.canCreateTeams ? (
-                              <DropdownLink href={route('teams.create')}>
-                                Create New Team
-                              </DropdownLink>
-                            ) : null}
-
-                            <div className="border-t border-gray-200 dark:border-gray-600" />
-
-                            {/* <!-- Team Switcher --> */}
-                            <div className="block px-4 py-2 text-xs text-gray-400">
-                              Switch Teams
-                            </div>
-
-                            {page.props.auth.user?.all_teams?.map(team => (
-                              <form
-                                onSubmit={e => switchToTeam(e, team)}
-                                key={team.id}
-                              >
-                                <DropdownLink as="button">
-                                  <div className="flex items-center">
-                                    {team.id ==
-                                      page.props.auth.user?.current_team_id && (
-                                      <svg
-                                        className="mr-2 h-5 w-5 text-green-400"
-                                        fill="none"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                      </svg>
-                                    )}
-                                    <div>{team.name}</div>
-                                  </div>
-                                </DropdownLink>
-                              </form>
-                            ))}
-                          </>
-                        ) : null}
-                      </div>
-                    </Dropdown>
-                  ) : null}
-                </div>
-
-                {/* <!-- Settings Dropdown --> */}
-                <div className="ml-3 relative">
-                  <Dropdown
-                    align="right"
-                    width="48"
-                    renderTrigger={() =>
-                      page.props.jetstream.managesProfilePhotos ? (
-                        <button className="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
-                          <img
-                            className="h-8 w-8 rounded-full object-cover"
-                            src={page.props.auth.user?.profile_photo_url}
-                            alt={page.props.auth.user?.name}
-                          />
-                        </button>
-                      ) : (
-                        <span className="inline-flex rounded-md">
-                          <button
-                            type="button"
-                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150"
-                          >
-                            {page.props.auth.user?.name}
-
-                            <svg
-                              className="ml-2 -mr-0.5 h-4 w-4"
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                              />
-                            </svg>
-                          </button>
-                        </span>
-                      )
-                    }
-                  >
-                    {/* <!-- Account Management --> */}
-                    <div className="block px-4 py-2 text-xs text-gray-400">
-                      Manage Account
-                    </div>
-
-                    <DropdownLink href={route('profile.show')}>
-                      Profile
-                    </DropdownLink>
-
-                    {page.props.jetstream.hasApiFeatures ? (
-                      <DropdownLink href={route('api-tokens.index')}>
-                        API Tokens
-                      </DropdownLink>
-                    ) : null}
-
-                    <div className="border-t border-gray-200 dark:border-gray-600"></div>
-
-                    {/* <!-- Authentication --> */}
-                    <form onSubmit={logout}>
-                      <DropdownLink as="button">Log Out</DropdownLink>
-                    </form>
-                  </Dropdown>
-                </div>
-              </div>
-
-              {/* <!-- Hamburger --> */}
-              <div className="-mr-2 flex items-center sm:hidden">
-                <button
-                  onClick={() =>
-                    setShowingNavigationDropdown(!showingNavigationDropdown)
-                  }
-                  className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out"
-                >
-                  <svg
-                    className="h-6 w-6"
-                    stroke="currentColor"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      className={classNames({
-                        hidden: showingNavigationDropdown,
-                        'inline-flex': !showingNavigationDropdown,
-                      })}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                    <path
-                      className={classNames({
-                        hidden: !showingNavigationDropdown,
-                        'inline-flex': showingNavigationDropdown,
-                      })}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* <!-- Responsive Navigation Menu --> */}
-          <div
-            className={classNames('sm:hidden', {
-              block: showingNavigationDropdown,
-              hidden: !showingNavigationDropdown,
-            })}
-          >
-            <div className="pt-2 pb-3 space-y-1">
-              <ResponsiveNavLink
-                href={route('dashboard')}
-                active={route().current('dashboard')}
-              >
-                Dashboard
-              </ResponsiveNavLink>
-            </div>
-
-            {/* <!-- Responsive Settings Options --> */}
-            <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-              <div className="flex items-center px-4">
-                {page.props.jetstream.managesProfilePhotos ? (
-                  <div className="flex-shrink-0 mr-3">
-                    <img
-                      className="h-10 w-10 rounded-full object-cover"
-                      src={page.props.auth.user?.profile_photo_url}
-                      alt={page.props.auth.user?.name}
-                    />
-                  </div>
-                ) : null}
-
-                <div>
-                  <div className="font-medium text-base text-gray-800 dark:text-gray-200">
-                    {page.props.auth.user?.name}
-                  </div>
-                  <div className="font-medium text-sm text-gray-500">
-                    {page.props.auth.user?.email}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-3 space-y-1">
-                <ResponsiveNavLink
-                  href={route('profile.show')}
-                  active={route().current('profile.show')}
-                >
-                  Profile
-                </ResponsiveNavLink>
-
-                {page.props.jetstream.hasApiFeatures ? (
-                  <ResponsiveNavLink
-                    href={route('api-tokens.index')}
-                    active={route().current('api-tokens.index')}
-                  >
-                    API Tokens
-                  </ResponsiveNavLink>
-                ) : null}
-
-                {/* <!-- Authentication --> */}
-                <form method="POST" onSubmit={logout}>
-                  <ResponsiveNavLink as="button">Log Out</ResponsiveNavLink>
-                </form>
-
-                {/* <!-- Team Management --> */}
-                {page.props.jetstream.hasTeamFeatures ? (
-                  <>
-                    <div className="border-t border-gray-200 dark:border-gray-600"></div>
-
-                    <div className="block px-4 py-2 text-xs text-gray-400">
-                      Manage Team
-                    </div>
-
-                    {/* <!-- Team Settings --> */}
-                    <ResponsiveNavLink
-                      href={route('teams.show', [
-                        page.props.auth.user?.current_team!,
-                      ])}
-                      active={route().current('teams.show')}
-                    >
-                      Team Settings
-                    </ResponsiveNavLink>
-
-                    {page.props.jetstream.canCreateTeams ? (
-                      <ResponsiveNavLink
-                        href={route('teams.create')}
-                        active={route().current('teams.create')}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className="w-6 h-6 mr-4"
                       >
-                        Create New Team
-                      </ResponsiveNavLink>
-                    ) : null}
-
-                    <div className="border-t border-gray-200 dark:border-gray-600"></div>
-
-                    {/* <!-- Team Switcher --> */}
-                    <div className="block px-4 py-2 text-xs text-gray-400">
-                      Switch Teams
-                    </div>
-                    {page.props.auth.user?.all_teams?.map(team => (
-                      <form onSubmit={e => switchToTeam(e, team)} key={team.id}>
-                        <ResponsiveNavLink as="button">
-                          <div className="flex items-center">
-                            {team.id ==
-                              page.props.auth.user?.current_team_id && (
-                              <svg
-                                className="mr-2 h-5 w-5 text-green-400"
-                                fill="none"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                              </svg>
-                            )}
-                            <div>{team.name}</div>
-                          </div>
-                        </ResponsiveNavLink>
-                      </form>
-                    ))}
-                  </>
-                ) : null}
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+                        />
+                      </svg>
+                      Home
+                    </a>
+                  </div>
+                  <div className="py-2">
+                    <a
+                      href="#"
+                      className="flex items-center text-1xl font-bold sm:shadow-ShadowCard sm:p-3 sm:rounded-md"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className="w-6 h- mr-4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Posts
+                    </a>
+                  </div>
+                  <div className="py-2">
+                    <a
+                      href="#"
+                      className="flex items-center text-1xl font-bold sm:shadow-ShadowCard sm:p-3 sm:rounded-md"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className="w-6 h-6 mr-4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
+                        />
+                      </svg>
+                      Messages
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
+
+            <main className="col-span-3">{children}</main>
           </div>
-        </nav>
+        )}
 
-        {/* <!-- Page Heading --> */}
-        {renderHeader ? (
-          <header className="bg-white dark:bg-gray-800 shadow">
-            <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-              {renderHeader()}
-            </div>
-          </header>
-        ) : null}
-
-        {/* <!-- Page Content --> */}
-        <main>{children}</main>
+        <div className="fixed left-0 right-0 bottom-0  w-[10rem] rounded-md  h-auto py-1  mx-auto my-2 sm:hidden">
+          <div className="flex justify-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="w-8 h-8 mr-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+              />
+            </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="w-8 h-8 mr-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="w-8 h-8"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div className="sm:hidden">
+        <ProfileDropdown />
       </div>
     </div>
   );

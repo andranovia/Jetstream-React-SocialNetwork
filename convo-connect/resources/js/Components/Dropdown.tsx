@@ -36,7 +36,6 @@ export default function Dropdown({
     <div className="relative">
       <div onClick={() => setOpen(!open)}>{renderTrigger()}</div>
 
-      {/* <!-- Full Screen Dropdown Overlay --> */}
       <div
         className="fixed inset-0 z-40"
         style={{ display: open ? 'block' : 'none' }}
@@ -55,7 +54,7 @@ export default function Dropdown({
       >
         <div
           className={classNames(
-            'absolute mt-2 rounded-md shadow-lg',
+            'absolute mt-2 rounded-md shadow-lg left-[70%] bottom-0 ',
             widthClass,
             alignmentClasses,
           )}
