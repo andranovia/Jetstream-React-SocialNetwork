@@ -19,7 +19,7 @@ export default function Welcome({ canLogin, canRegister }: Props) {
   return (
     <>
       <Head title="Welcome" />
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-screen w-screen overflow-hidden flex items-center justify-center">
         <WelcomeComponents>
           {canLogin ? (
             <div className="p-8 text-center">
@@ -32,20 +32,22 @@ export default function Welcome({ canLogin, canRegister }: Props) {
                 </Link>
               ) : (
                 <>
+                <div className='flex justify-center items-center my-auto '>
                   <Link
                     href={route('login')}
                     className="text-xl mx-10 rounded-md border-2 p-4 border-blue-800 font-semibold text-blue-500 hover:text-blue-800 dark:text-gray-400 dark:hover:text-white focus:outline-none focus:ring focus:ring-blue-300 transition duration-300"
                   >
-                    Log in
+                    Login
                   </Link>
                   {canRegister ? (
                     <Link
                       href={route('register')}
-                      className="mt-4 mx-10 rounded-md border-2 border-yellow-600 p-4 text-xl font-semibold text-yellow-600 hover:text-yellow-800 dark:text-gray-400 dark:hover:text-white focus:outline-none focus:ring focus:ring-pink-300 transition duration-300"
+                      className=" mx-10 rounded-md border-2 border-yellow-600 p-4 text-xl font-semibold text-yellow-600 hover:text-yellow-800 dark:text-gray-400 dark:hover:text-white focus:outline-none focus:ring focus:ring-pink-300 transition duration-300"
                     >
                       Register
                     </Link>
                   ) : null}
+                  </div>
                 </>
               )}
             </div>

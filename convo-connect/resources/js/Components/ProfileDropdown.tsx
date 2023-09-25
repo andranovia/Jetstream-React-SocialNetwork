@@ -7,6 +7,7 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import classNames from 'classnames';
 import { router } from '@inertiajs/core';
 import { useState } from 'react';
+import image from '../../../public/img/one.webp';
 
 export default function ProfileDropdown() {
   const page = useTypedPage();
@@ -111,6 +112,7 @@ export default function ProfileDropdown() {
                   />
                 </svg>
               </button>
+               <img src={image} alt="" className='relative w-[8rem] h-auto' />
             </div>
           </div>
         </div>
@@ -157,6 +159,7 @@ export default function ProfileDropdown() {
             </div>
           </div>
         </div>
+       
       </nav>
     </div>
   );
